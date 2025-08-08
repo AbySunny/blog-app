@@ -1,0 +1,151 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+body {
+  --tt-toolbar-height: 44px;
+  --tt-theme-text: var(--tt-gray-light-900);
+
+  .dark & {
+    --tt-theme-text: var(--tt-gray-dark-900);
+  }
+}
+
+/* Editor container theming for border/background */
+.simple-editor-content {
+  --tt-editor-border: rgba(0, 0, 0, 0.08);
+  --tt-editor-bg: #ffffff;
+}
+
+.dark .simple-editor-content {
+  --tt-editor-border: rgba(255, 255, 255, 0.12);
+  --tt-editor-bg: #0d0f12;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  color: var(--tt-theme-text);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  padding: 0;
+  overscroll-behavior-y: none;
+}
+
+html,
+body {
+  overscroll-behavior-x: none;
+}
+
+html,
+body,
+#root,
+#app {
+  height: 100%;
+  background-color: var(--tt-bg-color);
+}
+
+::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tt-scrollbar-color) transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--tt-scrollbar-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tiptap.ProseMirror {
+  font-family: "DM Sans", sans-serif;
+}
+
+.simple-editor-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.simple-editor-content {
+  max-width: min(900px, 92vw);
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.simple-editor-toolbar-sticky {
+  position: sticky;
+  /* Position toolbar just below the fixed site header (h-16 = 4rem) */
+  top: 4rem;
+  z-index: 100;
+  background: var(--tt-editor-bg);
+  border-bottom: 1px solid var(--tt-editor-border);
+  border-top:1px solid var(--tt-editor-border) ;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor {
+  flex: 1;
+  /* Reduce padding to increase usable typing area */
+  padding: 0.75rem 1rem 3rem;
+  border: 1px solid var(--tt-editor-border);
+  border-radius: 0.5rem;
+  background-color: var(--tt-editor-bg);
+}
+
+/* Highlight mark styles */
+.tiptap.ProseMirror mark[data-color] {
+  border-radius: 0.25em;
+  padding: 0.1em 0.2em;
+  white-space: nowrap;
+  font-weight: inherit;
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-yellow)"] {
+  background-color: var(--tt-color-highlight-yellow);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-green)"] {
+  background-color: var(--tt-color-highlight-green);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-blue)"] {
+  background-color: var(--tt-color-highlight-blue);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-purple)"] {
+  background-color: var(--tt-color-highlight-purple);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-red)"] {
+  background-color: var(--tt-color-highlight-red);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-gray)"] {
+  background-color: var(--tt-color-highlight-gray);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-brown)"] {
+  background-color: var(--tt-color-highlight-brown);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-orange)"] {
+  background-color: var(--tt-color-highlight-orange);
+}
+
+.tiptap.ProseMirror mark[data-color="var(--tt-color-highlight-pink)"] {
+  background-color: var(--tt-color-highlight-pink);
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror.simple-editor {
+    padding: 0.75rem 0.75rem 5rem;
+  }
+}

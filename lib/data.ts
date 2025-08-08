@@ -39,6 +39,36 @@ export const featuredPosts = [
     image:
       "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
+  {
+    id: 5,
+    title: "Future of Remote Collaboration",
+    excerpt:
+      "How distributed teams are reshaping the way we work, communicate, and create together.How distributed teams are reshaping the way we work, communicate, and create together.How distributed teams are reshaping the way we work, communicate, and create together.How distributed teams are reshaping the way we work, communicate, and create together.",
+    category: "Tech",
+    date: "Dec 8, 2024",
+    image:
+      "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 6,
+    title: "Future of Remote Collaboration",
+    excerpt:
+      "How distributed teams are reshaping the way we work, communicate, and create together.",
+    category: "Tech",
+    date: "Dec 8, 2024",
+    image:
+      "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 7,
+    title: "Future of Remote Collaboration",
+    excerpt:
+      "How distributed teams are reshaping the way we work, communicate, and create together.",
+    category: "Tech",
+    date: "Dec 8, 2024",
+    image:
+      "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
 ];
 
 export const categories = [
