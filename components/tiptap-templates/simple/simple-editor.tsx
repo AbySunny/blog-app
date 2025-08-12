@@ -3,9 +3,11 @@
 import * as React from "react"
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 
+
+
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
-import { Image } from "@tiptap/extension-image"
+
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
 import { Typography } from "@tiptap/extension-typography"
@@ -73,6 +75,9 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 
+type SimpleEditorProps = {
+  onContentChange?: (html: string, images: string[]) => void;
+};
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -146,9 +151,7 @@ const MainToolbarContent = ({
 
       {isMobile && <ToolbarSeparator />}
 
-      <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup>
+      
     </>
   )
 }
@@ -182,7 +185,7 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+export function SimpleEditor({ onContentChange }: SimpleEditorProps) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [editorHTML, setEditorHTML] = React.useState<string>("");
@@ -216,7 +219,7 @@ const editor = useEditor({
     TaskList,
     TaskItem.configure({ nested: true }),
     Highlight.configure({ multicolor: true }),
-    Image,
+    
     Typography,
     Superscript,
     Subscript,
@@ -236,15 +239,26 @@ useEffect(() => {
 
   const handleUpdate = () => {
     const html = editor.getHTML();
-    setEditorHTML(html); // store to variable
-    localStorage.setItem("blog-content", html); // optional
+    setEditorHTML(html);
+    localStorage.setItem("blog-content", html);
+
+    // extract image srcs
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    const imgs = Array.from(div.querySelectorAll("img"));
+    const imageUrls = imgs
+      .map((img, i) => ({ url: img.getAttribute("src") || "", pos: i }))
+      .filter(x => x.url)
+      .map(x => x.url);
+
+    onContentChange?.(html, imageUrls);
   };
 
   editor.on("update", handleUpdate);
   return () => {
     editor.off("update", handleUpdate);
   };
-}, [editor]);
+}, [editor, onContentChange]);
 
   const rect = useCursorVisibility({
     editor,

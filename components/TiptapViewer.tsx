@@ -72,7 +72,7 @@ const TiptapViewer: React.FC<TiptapViewerProps> = ({ html }) => {
       style={{
         border: "1px solid var(--tt-border-color, rgba(0,0,0,0.1))",
         borderRadius: "0.5rem",
-        padding: "1rem",
+        padding: "3rem",
         background: "var(--tt-viewer-bg)",
       }}
     >

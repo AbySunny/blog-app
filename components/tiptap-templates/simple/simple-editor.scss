@@ -10,13 +10,13 @@ body {
 }
 
 /* Editor container theming for border/background */
-.simple-editor-content {
-  --tt-editor-border: rgba(0, 0, 0, 0.08);
+.simple-editor-wrapper {
+  --tt-editor-border: rgba(0, 0, 0, 0.12);
   --tt-editor-bg: #ffffff;
 }
 
-.dark .simple-editor-content {
-  --tt-editor-border: rgba(255, 255, 255, 0.12);
+.dark .simple-editor-wrapper {
+  --tt-editor-border: rgba(255, 255, 255, 0.2);
   --tt-editor-bg: #0d0f12;
 }
 
@@ -53,7 +53,7 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--tt-scrollbar-color);
+  background-color: transparent;
   border-radius: 9999px;
 }
 
@@ -72,7 +72,7 @@ body,
 }
 
 .simple-editor-content {
-  max-width: min(900px, 92vw);
+  max-width: min(1200px, 92vw);
   width: 100%;
   margin: 0 auto;
   min-height: 100vh;
@@ -83,19 +83,20 @@ body,
 
 .simple-editor-toolbar-sticky {
   position: sticky;
-  /* Position toolbar just below the fixed site header (h-16 = 4rem) */
-  top: 4rem;
+  /* Toolbar offset controlled via CSS variable so pages can insert content between header and toolbar */
+  top: var(--tt-toolbar-offset, 4rem);
   z-index: 100;
   background: var(--tt-editor-bg);
-  border-bottom: 1px solid var(--tt-editor-border);
-  border-top:1px solid var(--tt-editor-border) ;
+  border-bottom: 1px solid var(--tt-editor-border, rgba(0, 0, 0, 0.12));
+  border-top: 1px solid var(--tt-editor-border, rgba(0, 0, 0, 0.12));
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
   flex: 1;
   /* Reduce padding to increase usable typing area */
   padding: 0.75rem 1rem 3rem;
-  border: 1px solid var(--tt-editor-border);
+  border: 1px solid var(--tt-editor-border, rgba(0, 0, 0, 0.12));
   border-radius: 0.5rem;
   background-color: var(--tt-editor-bg);
 }

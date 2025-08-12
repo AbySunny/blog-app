@@ -10,7 +10,7 @@ import { EditorContent } from "@tiptap/react";
 
 const Tiptap = () => {
   const editor = new Editor({
-    content: "<p>Hello World! 🌎️</p>",
+    content: "",
     // Don't render immediately on the server to avoid SSR issues
     // bind Tiptap to the `.element`
     // register extensions

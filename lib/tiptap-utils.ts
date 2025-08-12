@@ -248,36 +248,26 @@ export function isNodeTypeSelected(
  */
 export const handleImageUpload = async (
   file: File,
-  onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal
+  onProgress?: (event: { progress: number }) => void
 ): Promise<string> => {
-  // Validate file
-  if (!file) {
-    throw new Error("No file provided")
-  }
-
+  if (!file) throw new Error("No file provided");
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error(
-      `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`
-    )
+    throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`);
   }
 
-  // For demo/testing: Simulate upload progress. In production, replace the following code
-  // with your own upload implementation that returns a persistent, publicly accessible URL.
-  for (let progress = 0; progress <= 100; progress += 10) {
-    if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
-  }
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("folder", "blog/content");
 
-  // Return a temporary blob URL so the image appears immediately in the editor.
-  // Note: Blob URLs are not persistent across reloads. For saved content/preview,
-  // you must upload the file and return a real URL instead.
-  const objectUrl = URL.createObjectURL(file)
-  return objectUrl
-}
+  const res = await fetch("/api/upload", { method: "POST", body: fd });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error || "Upload failed");
+  }
+  const data = await res.json();
+  onProgress?.({ progress: 100 });
+  return data.url as string;
+};
 
 type ProtocolOptions = {
   /**

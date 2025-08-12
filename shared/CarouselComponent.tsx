@@ -15,9 +15,10 @@ import Image from "next/image";
 import { CardHeader } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from "next/link";
  
-function CarouselComponent({ data }: { data: any }) {
-  const posts = featuredPosts;
+function CarouselComponent({ data, items }: { data: any; items?: any[] }) {
+  const posts = items ?? featuredPosts;
   return (
     <div
       className="flex-col items-center"
@@ -30,10 +31,12 @@ function CarouselComponent({ data }: { data: any }) {
           </h2>
         </div>
         <div>
-          <Button size="lg" className="group">
-            View All{" "}
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          <Link href="/all-blogs">
+            <Button size="lg" className="group">
+              View All{" "}
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
         </div>
       </div>
       <Carousel
@@ -86,10 +89,13 @@ function CarouselComponent({ data }: { data: any }) {
                     <p className="text-muted-foreground mb-4 line-clamp-3">
                       {post.excerpt}
                     </p>
-                    <div className="flex items-center text-primary font-medium group-hover:underline">
+                    <Link
+                      href={`/posts/${post.slug}`}
+                      className="flex items-center text-primary font-medium group-hover:underline"
+                    >
                       Read more{" "}
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </div>
+                    </Link>
                   </CardContent>
                 </Card>
               </motion.div>
