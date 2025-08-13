@@ -1,5 +1,4 @@
 import React from 'react'
-import { featuredPosts } from "@/lib/data";
 import { Card, CardContent } from "@/components/ui/card";
 import * as motion from "motion/react-client";
 import {
@@ -18,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import Link from "next/link";
  
 function CarouselComponent({ data, items }: { data: any; items?: any[] }) {
-  const posts = items ?? featuredPosts;
+  const posts = items ?? [] ;
   return (
     <div
       className="flex-col items-center"

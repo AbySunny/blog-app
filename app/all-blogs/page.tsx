@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar } from "lucide-react";
 import { listPostsWithContent } from "@/lib/queries";
+import FollowButton from "@/components/FollowButton";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -23,39 +24,49 @@ export default async function AllBlogsPage() {
           {posts.map((p) => {
             const excerpt = firstParagraph(p.content_html || "");
             return (
-              <Link
+              <div
                 key={p.id}
-                href={`/posts/${p.slug}`}
-                className="group rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 bg-card/50"
+                className="group rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 bg-card/50 flex flex-col"
               >
-                {p.cover_image_url && (
-                  <div className="relative w-full h-48">
-                    <Image
-                      src={p.cover_image_url}
-                      alt={p.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                )}
-                <div className="p-6">
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {new Date(p.created_at).toLocaleDateString()}
-                  </div>
-                  <h3 className="text-xl font-serif font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">
-                    {p.title}
-                  </h3>
-                  {excerpt && (
-                    <p className="text-muted-foreground mb-4 line-clamp-3">
-                      {excerpt}
-                    </p>
+                <Link
+                  href={`/posts/${p.slug}`}
+                  className="block flex-grow"
+                >
+                  {p.cover_image_url && (
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={p.cover_image_url}
+                        alt={p.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
                   )}
-                  <div className="inline-flex items-center text-primary font-medium group-hover:underline">
-                    Read more
+                  <div className="p-6">
+                    <div className="flex items-center text-sm text-muted-foreground mb-3">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {new Date(p.created_at).toLocaleDateString()}
+                    </div>
+                    <h3 className="text-xl font-serif font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">
+                      {p.title}
+                    </h3>
+                    {excerpt && (
+                      <p className="text-muted-foreground mb-4 line-clamp-3">
+                        {excerpt}
+                      </p>
+                    )}
+                    <div className="inline-flex items-center text-primary font-medium group-hover:underline">
+                      Read more
+                    </div>
+                  </div>
+                </Link>
+                <div className="p-4 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold text-sm">{p.author_username}</div>
+                    <FollowButton targetUserId={p.author_id} />
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

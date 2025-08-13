@@ -1,6 +1,7 @@
 import * as motion from "motion/react-client";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 function HeroSection() {
   return (
@@ -27,10 +28,12 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <Button size="lg" className="group">
-                Read the Latest Post{" "}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
+              <Link href="/all-blogs ">
+                <Button size="lg" className="group">
+                  Read the Latest Post{" "}
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
 

@@ -122,7 +122,32 @@ export async function getPost(id: string) {
 }
 
 export async function getPostBySlug(slug: string) {
-  const rows = await sql`SELECT * FROM posts WHERE slug = ${slug} LIMIT 1;`;
+  const rows = await sql`
+    SELECT 
+      p.*,
+      u.id as author_id,
+      u.username as author_username,
+      u.created_at as author_created_at
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.slug = ${slug}
+    LIMIT 1;
+  `;
+  return rows[0] ?? null;
+}
+
+export async function getPostWithAuthor(id: string) {
+  const rows = await sql`
+    SELECT 
+      p.*,
+      u.id as author_id,
+      u.username as author_username,
+      u.created_at as author_created_at
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.id = ${id}
+    LIMIT 1;
+  `;
   return rows[0] ?? null;
 }
 
@@ -149,10 +174,13 @@ export async function listPostsByUser(userId: string, limit = 20, offset = 0) {
 
 export async function listPostsWithContent(limit = 30, offset = 0) {
   return await sql`
-    SELECT id, title, slug, cover_image_url, created_at, content_html
-    FROM posts
-    WHERE is_public = true
-    ORDER BY created_at DESC
+    SELECT 
+      p.id, p.title, p.slug, p.cover_image_url, p.created_at, p.content_html,
+      u.id as author_id, u.username as author_username
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.is_public = true
+    ORDER BY p.created_at DESC
     LIMIT ${limit} OFFSET ${offset};
   `;
 }
