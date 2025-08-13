@@ -19,4 +19,4 @@ export const navItems = [
     name: "Sign In",
     href: "/signin",
   },
-];
+]; 
