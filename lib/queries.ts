@@ -55,6 +55,29 @@ async function generateUniqueSlug(baseTitle: string) {
 export async function createPost(input: {
   user_id: string; title: string; content_html: string; cover_image_url?: string | null; is_public?: boolean;
 }) {
+  const post = await createPostInternal(input);
+  
+  // Get followers to notify them of new post
+  const followers = await sql`
+    SELECT follower_id FROM follows WHERE following_id = ${input.user_id}
+  `;
+  
+  for (const follower of followers) {
+    await createNotification({
+      user_id: follower.follower_id,
+      actor_id: input.user_id,
+      type: 'new_post',
+      message: 'published a new post',
+      post_id: post.id
+    });
+  }
+  
+  return post;
+}
+
+async function createPostInternal(input: {
+  user_id: string; title: string; content_html: string; cover_image_url?: string | null; is_public?: boolean;
+}) {
   const rows = await sql`
     INSERT INTO posts (user_id, title, content_html, cover_image_url, is_public, slug)
     VALUES (${input.user_id}, ${input.title}, ${input.content_html}, ${input.cover_image_url ?? null}, ${input.is_public ?? true}, ${await generateUniqueSlug(input.title)})
@@ -66,6 +89,18 @@ export async function createPost(input: {
 export async function likePost(user_id: string, post_id: string) {
   await sql`INSERT INTO post_likes (user_id, post_id) VALUES (${user_id}, ${post_id})
             ON CONFLICT DO NOTHING;`;
+  
+  // Get post details to create notification
+  const post = await getPost(post_id);
+  if (post && post.user_id !== user_id) {
+    await createNotification({
+      user_id: post.user_id,
+      actor_id: user_id,
+      type: 'like',
+      message: 'liked your post',
+      post_id: post_id
+    });
+  }
 }
 
 export async function unlikePost(user_id: string, post_id: string) {
@@ -75,11 +110,31 @@ export async function unlikePost(user_id: string, post_id: string) {
 export async function sharePost(user_id: string, post_id: string) {
   await sql`INSERT INTO post_shares (user_id, post_id) VALUES (${user_id}, ${post_id})
             ON CONFLICT DO NOTHING;`;
+  
+  // Get post details to create notification
+  const post = await getPost(post_id);
+  if (post && post.user_id !== user_id) {
+    await createNotification({
+      user_id: post.user_id,
+      actor_id: user_id,
+      type: 'share',
+      message: 'shared your post',
+      post_id: post_id
+    });
+  }
 }
 
 export async function follow(follower_id: string, following_id: string) {
   await sql`INSERT INTO follows (follower_id, following_id) VALUES (${follower_id}, ${following_id})
             ON CONFLICT DO NOTHING;`;
+  
+  // Create notification for the followed user
+  await createNotification({
+    user_id: following_id,
+    actor_id: follower_id,
+    type: 'follow',
+    message: 'started following you'
+  });
 }
 
 export async function unfollow(follower_id: string, following_id: string) {
@@ -220,5 +275,19 @@ export async function listTopSharedPosts(limit = 10) {
     GROUP BY p.id
     ORDER BY shares DESC, p.created_at DESC
     LIMIT ${limit};
+  `;
+}
+
+// Notification functions
+export async function createNotification(input: {
+  user_id: string;
+  actor_id: string;
+  type: 'like' | 'share' | 'follow' | 'new_post';
+  message: string;
+  post_id?: string;
+}) {
+  await sql`
+    INSERT INTO notifications (user_id, actor_id, type, message, post_id)
+    VALUES (${input.user_id}, ${input.actor_id}, ${input.type}, ${input.message}, ${input.post_id ?? null})
   `;
 }

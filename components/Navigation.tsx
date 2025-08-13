@@ -26,7 +26,7 @@ function Navigation() {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
     } finally {
-      window.location.reload();
+      window.location.href="/";
     }
   }
 
@@ -41,6 +41,9 @@ function Navigation() {
           {/* Desktop */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
+              if (item.href === "/notifications" && !user) {
+                return null;
+              }
               if (item.href === "/signin") {
                 return user ? (
                   <button

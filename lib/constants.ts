@@ -16,6 +16,10 @@ export const navItems = [
     href: "/all-blogs",
   },
   {
+    name: "Notifications",
+    href: "/notifications",
+  },
+  {
     name: "Sign In",
     href: "/signin",
   },
