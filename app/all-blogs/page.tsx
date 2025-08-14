@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Calendar } from "lucide-react";
 import { listPostsWithContent } from "@/lib/queries";
 import FollowButton from "@/components/FollowButton";
+import { cookies } from "next/headers";
+import { verifySession } from "@/lib/auth";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -12,8 +14,13 @@ function firstParagraph(html: string): string {
 }
 
 export default async function AllBlogsPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth")?.value;
+  const me = token ? await verifySession(token) : null;
+  
   const posts: any[] = await listPostsWithContent(30, 0);
-
+ 
+  
   return (
     <div className="max-w-7xl mt-10 mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-semibold mb-4">All Blogs</h1>

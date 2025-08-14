@@ -94,66 +94,22 @@ function useFileUpload(options: UploadOptions) {
       return null
     }
 
-    const abortController = new AbortController()
     const fileId = crypto.randomUUID()
-
+    
+    // Create local preview URL instead of uploading
+    const localUrl = URL.createObjectURL(file)
+    
     const newFileItem: FileItem = {
       id: fileId,
       file,
-      progress: 0,
-      status: "uploading",
-      abortController,
+      progress: 100, // Mark as ready since it's local
+      status: "success",
+      url: localUrl,
     }
 
     setFileItems((prev) => [...prev, newFileItem])
-
-    try {
-      if (!options.upload) {
-        throw new Error("Upload function is not defined")
-      }
-
-      const url = await options.upload(
-        file,
-        (event: { progress: number }) => {
-          setFileItems((prev) =>
-            prev.map((item) =>
-              item.id === fileId ? { ...item, progress: event.progress } : item
-            )
-          )
-        },
-        abortController.signal
-      )
-
-      if (!url) throw new Error("Upload failed: No URL returned")
-
-      if (!abortController.signal.aborted) {
-        setFileItems((prev) =>
-          prev.map((item) =>
-            item.id === fileId
-              ? { ...item, status: "success", url, progress: 100 }
-              : item
-          )
-        )
-        options.onSuccess?.(url)
-        return url
-      }
-
-      return null
-    } catch (error) {
-      if (!abortController.signal.aborted) {
-        setFileItems((prev) =>
-          prev.map((item) =>
-            item.id === fileId
-              ? { ...item, status: "error", progress: 0 }
-              : item
-          )
-        )
-        options.onError?.(
-          error instanceof Error ? error : new Error("Upload failed")
-        )
-      }
-      return null
-    }
+    options.onSuccess?.(localUrl)
+    return localUrl
   }
 
   const uploadFiles = async (files: File[]): Promise<string[]> => {

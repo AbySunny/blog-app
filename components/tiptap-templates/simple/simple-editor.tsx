@@ -7,7 +7,7 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
-
+import { Image } from "@tiptap/extension-image"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
 import { Typography } from "@tiptap/extension-typography"
@@ -214,6 +214,7 @@ const editor = useEditor({
         enableClickSelection: true,
       },
     }),
+    Image,
     HorizontalRule,
     TextAlign.configure({ types: ["heading", "paragraph"] }),
     TaskList,
@@ -237,21 +238,38 @@ const editor = useEditor({
 useEffect(() => {
   if (!editor) return;
 
+  // Load content from localStorage on initial load
+  const loadContent = () => {
+    const savedContent = localStorage.getItem("blog-content");
+    if (savedContent && editor && editor.state.doc.textContent.trim() === '') {
+      editor.commands.setContent(savedContent);
+    }
+  };
+
+  loadContent();
+
   const handleUpdate = () => {
     const html = editor.getHTML();
     setEditorHTML(html);
-    localStorage.setItem("blog-content", html);
-
-    // extract image srcs
+    
+    // Process images before saving to localStorage
     const div = document.createElement("div");
     div.innerHTML = html;
     const imgs = Array.from(div.querySelectorAll("img"));
-    const imageUrls = imgs
-      .map((img, i) => ({ url: img.getAttribute("src") || "", pos: i }))
-      .filter(x => x.url)
-      .map(x => x.url);
+    
+    // Filter out blob URLs and only save permanent URLs
+    const permanentImages = imgs.filter(img => {
+      const src = img.getAttribute("src");
+      return src && !src.startsWith("blob:");
+    });
+    
+    const imageUrls = permanentImages
+      .map(img => img.getAttribute("src") || "")
+      .filter(Boolean);
 
-    onContentChange?.(html, imageUrls);
+    // Save processed content to localStorage
+    localStorage.setItem("blog-content", div.innerHTML);
+    onContentChange?.(div.innerHTML, imageUrls);
   };
 
   editor.on("update", handleUpdate);

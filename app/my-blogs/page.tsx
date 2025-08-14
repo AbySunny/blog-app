@@ -4,7 +4,7 @@ import { verifySession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar } from "lucide-react";
+import { Calendar, Lock } from "lucide-react";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -34,7 +34,7 @@ export default async function MyBlogsPage() {
               <Link
                 key={p.id}
                 href={`/posts/${p.slug}`}
-                className="group rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 bg-card/50"
+                className="group relative rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 bg-card/50"
               >
                 {p.cover_image_url && (
                   <div className="relative w-full h-48">
@@ -44,6 +44,11 @@ export default async function MyBlogsPage() {
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                  </div>
+                )}
+                {!p.is_public && (
+                  <div className="absolute top-3 right-3 bg-black/60 text-white p-2 rounded-full">
+                    <Lock className="h-4 w-4" />
                   </div>
                 )}
                 <div className="p-6">
