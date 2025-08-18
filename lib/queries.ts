@@ -287,6 +287,18 @@ export async function listTopSharedPosts(limit = 10) {
   `;
 }
 
+export async function listPostsFromFollowedUsers(userId: string, limit = 10) {
+  return await sql`
+    SELECT
+      p.id, p.title, p.slug, p.cover_image_url, p.created_at, p.content_html
+    FROM posts p
+    INNER JOIN follows f ON p.user_id = f.following_id
+    WHERE f.follower_id = ${userId} AND p.is_public = true
+    ORDER BY p.created_at DESC
+    LIMIT ${limit};
+  `;
+}
+
 // Notification functions
 export async function createNotification(input: {
   user_id: string;

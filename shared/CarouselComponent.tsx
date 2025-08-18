@@ -20,8 +20,8 @@ function CarouselComponent({ data, items }: { data: any; items?: any[] }) {
   const posts = items ?? [] ;
   return (
     <div
-      className="flex-col items-center"
-      style={{ maxWidth: "75%", justifySelf: "center" }}
+      className="flex-col items-center mx-auto"
+      style={{ maxWidth: "75%" }}
     >
       <div className="flex justify-between" style={{ margin: "50px 0px" }}>
         <div>
