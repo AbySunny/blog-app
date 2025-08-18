@@ -42,7 +42,7 @@ function CarouselComponent({ data, items }: { data: any; items?: any[] }) {
         opts={{
           align: "start",
         }}
-        className="w-full "
+        className="w-full  "
       >
         <CarouselContent>
           {posts.map((post, index) => (

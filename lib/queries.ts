@@ -233,7 +233,7 @@ export async function listPostsByUser(userId: string, limit = 20, offset = 0) {
 }
 
 export async function listPostsWithContent(limit = 30, offset = 0) {
-  return await sql`
+  const posts = await sql`
     SELECT 
       p.id, p.title, p.slug, p.cover_image_url, p.created_at, p.content_html,
       u.id as author_id, u.username as author_username
@@ -243,6 +243,37 @@ export async function listPostsWithContent(limit = 30, offset = 0) {
     ORDER BY p.created_at DESC
     LIMIT ${limit} OFFSET ${offset};
   `;
+  
+  // Get tags for each post
+  const postIds = posts.map(p => p.id);
+  if (postIds.length === 0) return posts;
+  
+  const tags = await sql`
+    SELECT 
+      pt.post_id,
+      t.id as tag_id,
+      t.name as tag_name
+    FROM post_tags pt
+    JOIN tags t ON pt.tag_id = t.id
+    WHERE pt.post_id = ANY(${postIds})
+    ORDER BY t.name
+  `;
+  
+  // Group tags by post
+  const tagsByPost = tags.reduce((acc, tag) => {
+    if (!acc[tag.post_id]) acc[tag.post_id] = [];
+    acc[tag.post_id].push({
+      id: tag.tag_id,
+      name: tag.tag_name
+    });
+    return acc;
+  }, {} as Record<string, Array<{ id: string; name: string }>>);
+  
+  // Add tags to posts
+  return posts.map(post => ({
+    ...post,
+    tags: tagsByPost[post.id] || []
+  }));
 }
 
 export async function getTotalPostsCount() {

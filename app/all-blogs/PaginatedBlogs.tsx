@@ -3,15 +3,21 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
   if (!match) return "";
   const raw = match[1] || "";
   return raw.replace(/<[^>]+>/g, "").trim();
+}
+
+interface Tag {
+  id: string;
+  name: string;
 }
 
 interface Post {
@@ -23,6 +29,7 @@ interface Post {
   content_html: string;
   author_id: string;
   author_username: string;
+  tags: Tag[];
 }
 
 interface PaginatedBlogsProps {
@@ -35,7 +42,21 @@ export default function PaginatedBlogs({ initialPosts, totalPosts, me }: Paginat
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
   const postsPerPage = 9;
+
+  // Get all unique tags from posts
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, Tag>();
+    initialPosts.forEach(post => {
+      post.tags.forEach(tag => {
+        if (!tagMap.has(tag.id)) {
+          tagMap.set(tag.id, tag);
+        }
+      });
+    });
+    return Array.from(tagMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [initialPosts]);
 
   // Debounce search query
   useEffect(() => {
@@ -46,7 +67,9 @@ export default function PaginatedBlogs({ initialPosts, totalPosts, me }: Paginat
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Filter posts based on search query
+
+
+  // Filter posts based on search query (including tags)
   const filteredPosts = useMemo(() => {
     if (!debouncedSearchQuery.trim()) {
       return initialPosts;
@@ -56,10 +79,11 @@ export default function PaginatedBlogs({ initialPosts, totalPosts, me }: Paginat
     return initialPosts.filter(post => 
       post.title.toLowerCase().includes(query) ||
       post.content_html.toLowerCase().includes(query) ||
-      post.author_username.toLowerCase().includes(query)
+      post.author_username.toLowerCase().includes(query) ||
+      post.tags.some(tag => tag.name.toLowerCase().includes(query))
     );
   }, [initialPosts, debouncedSearchQuery]);
-
+  
   const totalFilteredPosts = filteredPosts.length;
   const totalPages = Math.ceil(totalFilteredPosts / postsPerPage);
 
@@ -116,7 +140,7 @@ export default function PaginatedBlogs({ initialPosts, totalPosts, me }: Paginat
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search blogs..."
+            placeholder="Search blogs or tags..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 w-full px-10"
