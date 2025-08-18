@@ -53,9 +53,14 @@ async function generateUniqueSlug(baseTitle: string) {
 }
 
 export async function createPost(input: {
-  user_id: string; title: string; content_html: string; cover_image_url?: string | null; is_public?: boolean;
+  user_id: string; title: string; content_html: string; cover_image_url?: string | null; is_public?: boolean; tags?: string[];
 }) {
   const post = await createPostInternal(input);
+  
+  // Handle tags if provided
+  if (input.tags && input.tags.length > 0) {
+    await addTagsToPost(post.id, input.tags);
+  }
   
   // Get followers to notify them of new post
   const followers = await sql`
@@ -311,4 +316,80 @@ export async function createNotification(input: {
     INSERT INTO notifications (user_id, actor_id, type, message, post_id)
     VALUES (${input.user_id}, ${input.actor_id}, ${input.type}, ${input.message}, ${input.post_id ?? null})
   `;
+}
+
+// Tag-related functions
+export async function addTagsToPost(postId: string, tagNames: string[]) {
+  // Normalize tag names (lowercase, trim)
+  const normalizedTags = [...new Set(tagNames.map(tag => tag.toLowerCase().trim()))];
+  
+  // Create tags if they don't exist
+  for (const tagName of normalizedTags) {
+    await sql`
+      INSERT INTO tags (name) VALUES (${tagName})
+      ON CONFLICT (name) DO NOTHING
+    `;
+  }
+  
+  // Get tag IDs
+  const tagRows = await sql`
+    SELECT id FROM tags WHERE name = ANY(${normalizedTags})
+  `;
+  
+  // Link tags to post
+  for (const tag of tagRows) {
+    await sql`
+      INSERT INTO post_tags (post_id, tag_id) VALUES (${postId}, ${tag.id})
+      ON CONFLICT DO NOTHING
+    `;
+  }
+}
+
+export async function getPostTags(postId: string) {
+  const rows = await sql`
+    SELECT t.id, t.name
+    FROM tags t
+    JOIN post_tags pt ON t.id = pt.tag_id
+    WHERE pt.post_id = ${postId}
+    ORDER BY t.name
+  `;
+  return rows as Array<{ id: string; name: string }>;
+}
+
+export async function getPostsByTag(tagName: string, limit = 20, offset = 0) {
+  const rows = await sql`
+    SELECT 
+      p.id, p.title, p.slug, p.cover_image_url, p.created_at, p.content_html,
+      u.id as author_id, u.username as author_username
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    JOIN post_tags pt ON p.id = pt.post_id
+    JOIN tags t ON pt.tag_id = t.id
+    WHERE t.name = ${tagName} AND p.is_public = true
+    ORDER BY p.created_at DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+  return rows;
+}
+
+export async function getAllTags() {
+  const rows = await sql`
+    SELECT t.id, t.name, COUNT(pt.post_id)::int as post_count
+    FROM tags t
+    LEFT JOIN post_tags pt ON t.id = pt.tag_id
+    GROUP BY t.id, t.name
+    ORDER BY post_count DESC, t.name
+  `;
+  return rows as Array<{ id: string; name: string; post_count: number }>;
+}
+
+export async function searchTags(query: string, limit = 10) {
+  const rows = await sql`
+    SELECT id, name
+    FROM tags
+    WHERE name ILIKE ${`%${query}%`}
+    ORDER BY name
+    LIMIT ${limit}
+  `;
+  return rows as Array<{ id: string; name: string }>;
 }

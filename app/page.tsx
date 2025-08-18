@@ -70,7 +70,7 @@ export default async function Home() {
     title: p.title,
     date: new Date(p.created_at).toLocaleDateString(),
     excerpt: firstParagraph(p.content_html || ""),
-    category: "From Users You Follow",
+    category: "From Following",
   }));
 
   return (

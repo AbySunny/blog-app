@@ -1,7 +1,11 @@
 "use client";
 
+import TagInput from "@/components/TagInput";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import React, { useEffect, useRef, useState } from "react";
+
+
+
 
 function TipTapDemo() {
   const [title, setTitle] = useState("");
@@ -15,6 +19,7 @@ function TipTapDemo() {
   const [editorImages, setEditorImages] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   // Clean up object URLs
   useEffect(() => {
@@ -157,6 +162,7 @@ function TipTapDemo() {
           content_html: processedContent,
           cover_image_url: finalCoverUrl || null,
           is_public: isPublic,
+          tags: tags,
         }),
       });
 
@@ -251,6 +257,9 @@ function TipTapDemo() {
             </div>
 
             <div className="flex items-end gap-3">
+              <div>
+                <TagInput tags={tags} onTagsChange={setTags} maxTags={4} />
+              </div>
               <div className="flex items-center gap-2 self-end mb-[6px]">
                 <button
                   type="button"
@@ -260,22 +269,44 @@ function TipTapDemo() {
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-black shadow transition-transform ${
-                      isPublic ? 'translate-x-6' : 'translate-x-1'
+                      isPublic ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     {isPublic ? (
-                      <svg className="h-4 w-4 text-green-600 absolute left-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      <svg
+                        className="h-4 w-4 text-green-600 absolute left-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                        />
                       </svg>
                     ) : (
-                      <svg className="h-4 w-4 text-red-600 absolute right-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      <svg
+                        className="h-4 w-4 text-red-600 absolute right-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
                       </svg>
                     )}
                   </div>
                 </button>
-                <span className="text-sm">{isPublic ? 'Public' : 'Private'}</span>
+                <span className="text-sm">
+                  {isPublic ? "Public" : "Private"}
+                </span>
               </div>
               <button
                 type="button"
@@ -283,7 +314,11 @@ function TipTapDemo() {
                 disabled={isProcessing || uploadingCover}
                 className="h-10 px-4 rounded-md bg-foreground text-background font-medium whitespace-nowrap disabled:opacity-60"
               >
-                {isProcessing ? "Processing..." : uploadingCover ? "Uploading..." : "Add Blog"}
+                {isProcessing
+                  ? "Processing..."
+                  : uploadingCover
+                  ? "Uploading..."
+                  : "Add Blog"}
               </button>
             </div>
           </div>
@@ -298,7 +333,6 @@ function TipTapDemo() {
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <SimpleEditor
           onContentChange={(_, images) => setEditorImages(images)}
-          
         />
       </div>
     </div>

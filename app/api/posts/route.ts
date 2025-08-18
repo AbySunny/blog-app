@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { title, content_html, cover_image_url, is_public = true } = await req.json();
+    const { title, content_html, cover_image_url, is_public = true, tags } = await req.json();
 
     const cookieStore = await cookies();
     const token = cookieStore.get("auth")?.value;
@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       content_html,
       cover_image_url: cover_image_url ?? null,
       is_public,
+      tags: tags || [],
     });
 
     return NextResponse.json({ post }, { status: 201 });

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
+import { Input } from "@/components/ui/input";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -32,13 +33,45 @@ interface PaginatedBlogsProps {
 
 export default function PaginatedBlogs({ initialPosts, totalPosts, me }: PaginatedBlogsProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const postsPerPage = 9;
-  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filter posts based on search query
+  const filteredPosts = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) {
+      return initialPosts;
+    }
+    
+    const query = debouncedSearchQuery.toLowerCase();
+    return initialPosts.filter(post => 
+      post.title.toLowerCase().includes(query) ||
+      post.content_html.toLowerCase().includes(query) ||
+      post.author_username.toLowerCase().includes(query)
+    );
+  }, [initialPosts, debouncedSearchQuery]);
+
+  const totalFilteredPosts = filteredPosts.length;
+  const totalPages = Math.ceil(totalFilteredPosts / postsPerPage);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery]);
 
   // Calculate the posts to display for current page
   const startIndex = (currentPage - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
-  const currentPosts = initialPosts.slice(startIndex, endIndex);
+  const currentPosts = filteredPosts.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -77,10 +110,26 @@ export default function PaginatedBlogs({ initialPosts, totalPosts, me }: Paginat
 
   return (
     <div className="max-w-7xl mt-10 mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-semibold mb-4">All Blogs</h1>
+      <div className="flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-2xl font-semibold mb-4 sm:mb-0">All Blogs</h1>
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search blogs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 w-full px-10"
+          />
+        </div>
+      </div>
       
       {currentPosts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No posts yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {debouncedSearchQuery 
+            ? `No blogs found for "${debouncedSearchQuery}".` 
+            : "No posts yet."}
+        </p>
       ) : (
         <>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
