@@ -21,7 +21,7 @@ export default async function Home() {
   const itemsLiked = liked.map((p: any) => ({
     id: p.id,
     slug: p.slug,
-    image: p.cover_image_url || "/next.svg",
+    image: p.cover_image_url || "/no-image.jpg",
     title: p.title,
     date: new Date(p.created_at).toLocaleDateString(),
     excerpt: firstParagraph(p.content_html || ""),
@@ -31,7 +31,7 @@ export default async function Home() {
   const itemsShared = shared.map((p: any) => ({
     id: p.id,
     slug: p.slug,
-    image: p.cover_image_url || "/next.svg",
+    image: p.cover_image_url || "/no-image.jpg",
     title: p.title,
     date: new Date(p.created_at).toLocaleDateString(),
     excerpt: firstParagraph(p.content_html || ""),

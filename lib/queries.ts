@@ -240,9 +240,18 @@ export async function listPostsWithContent(limit = 30, offset = 0) {
   `;
 }
 
+export async function getTotalPostsCount() {
+  const rows = await sql`
+    SELECT COUNT(*)::int as count 
+    FROM posts 
+    WHERE is_public = true
+  `;
+  return rows[0]?.count || 0;
+}
+
 export async function listPostsByUserWithContent(userId: string, limit = 20, offset = 0) {
   return await sql`
-    SELECT id, title, slug, cover_image_url, created_at, content_html, is_private
+    SELECT id, title, slug, cover_image_url, created_at, content_html, is_public
     FROM posts
     WHERE user_id = ${userId}
     ORDER BY created_at DESC

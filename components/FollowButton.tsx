@@ -12,7 +12,6 @@ export default function FollowButton({ targetUserId }: FollowButtonProps) {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     console.log("FollowButton mounted with targetUserId:", targetUserId);

@@ -4,7 +4,7 @@ import { verifySession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Lock } from "lucide-react";
+import { Calendar, Lock, Unlock } from "lucide-react";
 
 function firstParagraph(html: string): string {
   const match = html?.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
@@ -36,21 +36,25 @@ export default async function MyBlogsPage() {
                 href={`/posts/${p.slug}`}
                 className="group relative rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 bg-card/50"
               >
-                {p.cover_image_url && (
-                  <div className="relative w-full h-48">
-                    <Image
-                      src={p.cover_image_url}
-                      alt={p.title}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                )}
-                {!p.is_public && (
-                  <div className="absolute top-3 right-3 bg-black/60 text-white p-2 rounded-full">
-                    <Lock className="h-4 w-4" />
-                  </div>
-                )}
+                <div className="relative w-full h-48">
+                  <Image
+                    src={p.cover_image_url || "/no-image.jpg"}
+                    alt={p.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="absolute top-3 right-3 p-2 rounded-full">
+                  {p.is_public ? (
+                    <div className="bg-black/60 text-green-300 p-2 rounded-full">
+                      <Unlock className="h-4 w-4" />
+                    </div>
+                  ) : (
+                    <div className="bg-black/60 text-red-400 p-2 rounded-full">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
                 <div className="p-6">
                   <div className="flex items-center text-sm text-muted-foreground mb-3">
                     <Calendar className="h-4 w-4 mr-2" />
